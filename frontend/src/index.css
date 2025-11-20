@@ -1,1 +1,103 @@
 @import "tailwindcss";
+
+@theme {
+  --color-pop-pink: #FF6B6B;
+  --color-pop-yellow: #FFD93D;
+  --color-pop-blue: #4D96FF;
+  --color-pop-green: #6BCB77;
+  --color-pop-black: #1A1A1A;
+  --color-pop-white: #FFFFFF;
+
+  --shadow-hard: 4px 4px 0px 0px #1A1A1A;
+  --shadow-hard-lg: 8px 8px 0px 0px #1A1A1A;
+  --shadow-hard-xl: 12px 12px 0px 0px #1A1A1A;
+
+  --animate-bounce-in: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  --animate-shake: shake 0.5s cubic-bezier(.36, .07, .19, .97) both;
+
+  @keyframes bounce-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.3);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    70% {
+      transform: scale(0.9);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes shake {
+
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
+
+  @keyframes slide-up-left {
+    0% {
+      transform: translate3d(-100%, 100%, 0) scaleX(-1);
+      opacity: 0;
+    }
+
+    60% {
+      transform: translate3d(0, -20px, 0) scaleX(-1);
+      opacity: 1;
+    }
+
+    100% {
+      transform: translate3d(0, 0, 0) scaleX(-1);
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes slide-up-right {
+    0% {
+      transform: translate3d(100%, 100%, 0) scaleX(-1);
+      opacity: 0;
+    }
+
+    60% {
+      transform: translate3d(0, -20px, 0) scaleX(-1);
+      opacity: 1;
+    }
+
+    100% {
+      transform: translate3d(0, 0, 0) scaleX(-1);
+      opacity: 0.8;
+    }
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-pop-black font-sans;
+    background-image: radial-gradient(#1A1A1A 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+}
