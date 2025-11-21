@@ -30,7 +30,7 @@ const CreateRumor: React.FC = () => {
 
                     <div>
                         <label className="block font-bold mb-2 text-pop-black">Content (File/Text)</label>
-                        <div className="border-2 border-dashed border-pop-black rounded-lg p-6 text-center hover:bg-pop-yellow/20 transition cursor-pointer group">
+                        <div className="border-2 border-dashed border-pop-black rounded-lg p-6 text-center hover:bg-pop-yellow/20 transition cursor-pointer group bg-white">
                             <input type="file" className="hidden" id="file-upload" />
                             <label htmlFor="file-upload" className="cursor-pointer text-pop-blue font-black text-lg group-hover:scale-110 inline-block transition-transform">
                                 Upload a file
