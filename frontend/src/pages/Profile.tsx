@@ -8,19 +8,22 @@ import { buildClaimRewardTx, parseRumor, parseTicket, rewardAmount, describeStat
 import { guafiConfig } from '../lib/config';
 import { formatSui } from '../lib/format';
 import type { TicketView, RumorView } from '../lib/types';
+import { computeCreatorAlpha, computeParticipantStats } from '../lib/stats';
 
 const Profile: React.FC = () => {
     const account = useCurrentAccount();
     const client = useSuiClient();
     const { mutateAsync, isPending } = useSignAndExecuteTransaction();
     const [error, setError] = useState<string | null>(null);
+    const statsEnabled = Boolean(account?.address && guafiConfig.packageId);
 
-    const { data: tickets, isLoading, refetch } = useQuery<Array<{ ticket: TicketView; rumor: RumorView }>>({
+    const { data: tickets, isLoading, refetch, isFetching } = useQuery<Array<{ ticket: TicketView; rumor: RumorView }>>({
         queryKey: ['tickets', account?.address],
-        enabled: Boolean(account?.address && guafiConfig.packageId),
+        enabled: statsEnabled,
         staleTime: 30_000,
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
+        refetchInterval: 10_000,
         queryFn: async () => {
             if (!account?.address) return [];
             if (!guafiConfig.packageId) throw new Error('Missing VITE_PACKAGE_ID');
@@ -62,6 +65,36 @@ const Profile: React.FC = () => {
         return { spent, earned, count: tickets.length };
     }, [tickets]);
 
+    const { data: creatorStats } = useQuery({
+        queryKey: ['creatorStats', account?.address],
+        enabled: statsEnabled,
+        staleTime: 60_000,
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
+        refetchInterval: 15_000,
+        queryFn: async () => {
+            if (!account?.address || !guafiConfig.packageId) return { alphaEarned: 0n, joinCount: 0 };
+            return computeCreatorAlpha(client, guafiConfig.packageId, account.address);
+        },
+    });
+
+    const { data: participantStats } = useQuery({
+        queryKey: ['participantStats', account?.address],
+        enabled: statsEnabled,
+        staleTime: 60_000,
+        refetchOnWindowFocus: true,
+        refetchOnReconnect: true,
+        refetchInterval: 15_000,
+        queryFn: async () => {
+            if (!account?.address || !guafiConfig.packageId) return { spent: 0n, claimed: 0n, joins: 0 };
+            return computeParticipantStats(client, guafiConfig.packageId, account.address);
+        },
+    });
+
+    const totalPending = summary.earned;
+    const totalClaimed = participantStats?.claimed ?? 0n;
+    const totalEarnedCombined = totalPending + totalClaimed;
+
     const handleClaim = async (rumorId: string, ticketId: string) => {
         setError(null);
         const tx = buildClaimRewardTx(rumorId, ticketId);
@@ -86,7 +119,7 @@ const Profile: React.FC = () => {
         <div className="max-w-4xl mx-auto animate-bounce-in">
             <Card className="mb-8 bg-white">
                 <div className="flex items-center space-x-6">
-                    <div className="h-20 w-20 bg-pop-blue text-white rounded-full flex items-center justify-center text-4xl border-4 border-pop-black shadow-hard">
+                    <div className="h-20 w-20 bg-pop-blue text-white rounded-full flex items-center justify-center text-4l border-4 border-pop-black shadow-hard">
                         🍉
                     </div>
                     <div>
@@ -97,21 +130,40 @@ const Profile: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                     <div className="bg-pop-blue/10 p-6 rounded-xl border-2 border-pop-blue shadow-[4px_4px_0px_0px_#4D96FF]">
-                        <p className="text-sm text-pop-blue font-bold uppercase tracking-wider">Total Spent</p>
-                        <p className="text-3xl font-black text-pop-black">{formatSui(summary.spent)} SUI</p>
+                        <p className="text-sm text-pop-blue font-bold uppercase tracking-wider">Total Spent (Tickets)</p>
+                        <p className="text-3xl font-black text-pop-black">{formatSui(participantStats?.spent ?? summary.spent)} SUI</p>
                     </div>
                     <div className="bg-pop-green/10 p-6 rounded-xl border-2 border-pop-green shadow-[4px_4px_0px_0px_#6BCB77]">
-                        <p className="text-sm text-pop-green font-bold uppercase tracking-wider">Total Earned</p>
-                        <p className="text-3xl font-black text-pop-black">{formatSui(summary.earned)} SUI</p>
+                        <p className="text-sm text-pop-green font-bold uppercase tracking-wider">Total Earned (Pending+Claimed)</p>
+                        <p className="text-3xl font-black text-pop-black">{formatSui(totalEarnedCombined)} SUI</p>
+                        <p className="text-xs font-bold text-gray-500 mt-1">Pending: {formatSui(totalPending)} / Claimed: {formatSui(totalClaimed)}</p>
                     </div>
                     <div className="bg-pop-pink/10 p-6 rounded-xl border-2 border-pop-pink shadow-[4px_4px_0px_0px_#FF6B6B]">
                         <p className="text-sm text-pop-pink font-bold uppercase tracking-wider">Rumors Joined</p>
-                        <p className="text-3xl font-black text-pop-black">{summary.count}</p>
+                        <p className="text-3xl font-black text-pop-black">{participantStats?.joins ?? summary.count}</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div className="bg-white p-5 rounded-xl border-2 border-pop-yellow shadow-[4px_4px_0px_0px_#F9D923]">
+                        <p className="text-sm font-bold text-pop-black uppercase tracking-wider">Creator α Earnings</p>
+                        <p className="text-3xl font-black text-pop-black">{formatSui(creatorStats?.alphaEarned ?? 0n)} SUI</p>
+                        <p className="text-xs font-bold text-gray-500 mt-1">Joins to your rumors: {creatorStats?.joinCount ?? 0}</p>
+                    </div>
+                    <div className="bg-white p-5 rounded-xl border-2 border-pop-blue shadow-[4px_4px_0px_0px_#4D96FF]">
+                        <p className="text-sm font-bold text-pop-black uppercase tracking-wider">Participant Claimed</p>
+                        <p className="text-3xl font-black text-pop-black">{formatSui(totalClaimed)} SUI</p>
+                        <p className="text-xs font-bold text-gray-500 mt-1">Event-based totals (β already withdrawn)</p>
                     </div>
                 </div>
             </Card>
 
-            <h2 className="text-2xl font-black text-pop-black mb-6 pl-2 border-l-8 border-pop-yellow">Participated Rumors</h2>
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-black text-pop-black pl-2 border-l-8 border-pop-yellow">Participated Rumors</h2>
+                <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching || isPending}>
+                    {isFetching ? 'Refreshing...' : 'Refresh'}
+                </Button>
+            </div>
             {error && (
                 <Card className="bg-pop-pink/10 border-pop-pink text-pop-black font-bold mb-4">
                     {error}
