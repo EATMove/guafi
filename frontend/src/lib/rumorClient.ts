@@ -17,9 +17,11 @@ export function parseRumor(obj: SuiObjectResponse): RumorView | null {
 
     const rewardPoolRaw = fields.reward_pool as { fields?: { value?: string } } | undefined;
     const principalRaw = fields.principal_vault as { fields?: { value?: string } } | undefined;
+    const title = fields.title as string | undefined;
 
     return {
         id: obj.data.objectId,
+        title: title || (fields.blob_id as string),
         blobId: fields.blob_id as string,
         price: BigInt(fields.price as string),
         minParticipants: Number(fields.min_participants),
@@ -53,6 +55,7 @@ export function rewardAmount(rumor: RumorView, ticket: TicketView): bigint {
 }
 
 export function buildCreateRumorTx(params: {
+    title: string;
     blobId: string;
     price: number;
     minParticipants: number;
@@ -65,6 +68,7 @@ export function buildCreateRumorTx(params: {
     tx.moveCall({
         target: `${guafiConfig.packageId}::guafi::create_rumor`,
         arguments: [
+            tx.pure.string(params.title),
             tx.pure.string(params.blobId),
             tx.pure.u64(priceMist),
             tx.pure.u64(params.minParticipants),

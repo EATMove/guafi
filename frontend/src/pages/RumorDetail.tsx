@@ -72,7 +72,7 @@ const RumorDetail: React.FC = () => {
                         <span className="text-pop-black font-mono font-bold text-lg truncate max-w-[200px]">ID: {id}</span>
                     </div>
                     <h1 className="text-4xl font-black text-pop-black leading-tight break-words">
-                        {rumor?.blobId || 'Loading rumor...'}
+                        {rumor?.title || 'Loading rumor...'}
                     </h1>
                     <p className="text-sm text-gray-600 font-bold mt-2 break-words">Creator: {rumor?.creator}</p>
                 </div>

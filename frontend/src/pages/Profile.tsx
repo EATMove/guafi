@@ -137,7 +137,7 @@ const Profile: React.FC = () => {
                                         </span>
                                         <span className="text-gray-500 font-mono font-bold truncate max-w-[120px]">{rumor.id}</span>
                                     </div>
-                                    <h3 className="text-xl font-black text-pop-black break-words">{rumor.blobId}</h3>
+                                    <h3 className="text-xl font-black text-pop-black break-words">{rumor.title}</h3>
                                 </div>
 
                                 <div className="flex items-center space-x-6 w-full md:w-auto justify-between md:justify-end">

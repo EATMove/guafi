@@ -107,7 +107,7 @@ const RumorList: React.FC = () => {
                                 <span className="text-pop-black font-mono font-bold truncate max-w-[120px] text-right">{rumor.id}</span>
                             </div>
 
-                            <h2 className="text-2xl font-black mb-4 text-pop-black leading-tight break-words">{rumor.blobId}</h2>
+                            <h2 className="text-2xl font-black mb-4 text-pop-black leading-tight break-words">{rumor.title}</h2>
 
                             <div className="mt-auto space-y-4">
                                 <div className="space-y-2 font-bold">

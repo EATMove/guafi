@@ -35,6 +35,7 @@ module guafi::guafi {
 
     public struct Rumor has key, store {
         id: UID,
+        title: String,
         blob_id: String,
         price: u64,
         min_participants: u64,
@@ -63,6 +64,7 @@ module guafi::guafi {
     public struct RumorCreated has copy, drop {
         rumor_id: ID,
         creator: address,
+        title: String,
         blob_id: String,
         price: u64,
         min_participants: u64,
@@ -104,6 +106,7 @@ module guafi::guafi {
     }
 
     public entry fun create_rumor(
+        title: String,
         blob_id: String,
         price: u64,
         min_participants: u64,
@@ -119,6 +122,7 @@ module guafi::guafi {
 
         let rumor = Rumor {
             id: object::new(ctx),
+            title,
             blob_id,
             price,
             min_participants,
@@ -134,6 +138,7 @@ module guafi::guafi {
         event::emit(RumorCreated {
             rumor_id: object::id(&rumor),
             creator: ctx.sender(),
+            title: rumor.title,
             blob_id: rumor.blob_id,
             price,
             min_participants,

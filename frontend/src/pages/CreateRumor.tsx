@@ -1,21 +1,50 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCurrentAccount, useSignAndExecuteTransaction } from '@mysten/dapp-kit';
 import { Card } from '../components/Card';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
+import { buildCreateRumorTx } from '../lib/rumorClient';
+import { guafiConfig } from '../lib/config';
 
 const CreateRumor: React.FC = () => {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
+    const account = useCurrentAccount();
+    const { mutateAsync, isPending } = useSignAndExecuteTransaction();
+    const [title, setTitle] = useState('');
+    const [price, setPrice] = useState<number>(0.1);
+    const [minParticipants, setMinParticipants] = useState<number>(10);
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        // Mock delay for encryption and transaction
-        setTimeout(() => {
-            setLoading(false);
-            navigate('/');
-        }, 2000);
+        setError(null);
+
+        if (!guafiConfig.packageId) {
+            setError('Missing VITE_PACKAGE_ID; cannot submit on-chain transaction');
+            return;
+        }
+        if (!account) {
+            setError('Please connect your wallet first');
+            return;
+        }
+
+        // blob_id 先留空，Seal/Walrus 集成后再填真实值
+        const tx = buildCreateRumorTx({
+            title,
+            blobId: '',
+            price,
+            minParticipants,
+            deadlineMs: 0,
+        });
+
+        mutateAsync(
+            { transaction: tx },
+            {
+                onSuccess: () => navigate('/'),
+                onError: (err) => setError((err as Error).message),
+            },
+        );
     };
 
     return (
@@ -26,6 +55,8 @@ const CreateRumor: React.FC = () => {
                         label="Rumor Title"
                         placeholder="e.g., The Secret of..."
                         required
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
                     />
 
                     <div>
@@ -46,12 +77,16 @@ const CreateRumor: React.FC = () => {
                             step="0.1"
                             placeholder="0.1"
                             required
+                            value={price}
+                            onChange={(e) => setPrice(Number(e.target.value))}
                         />
                         <Input
                             label="Min Participants"
                             type="number"
                             placeholder="10"
                             required
+                            value={minParticipants}
+                            onChange={(e) => setMinParticipants(Number(e.target.value))}
                         />
                     </div>
 
@@ -59,13 +94,19 @@ const CreateRumor: React.FC = () => {
                         <p>Note: Content will be encrypted locally using Seal SDK before uploading to Walrus.</p>
                     </div>
 
+                    {error && (
+                        <div className="bg-pop-pink/10 border-2 border-pop-pink p-3 font-bold text-pop-black">
+                            {error}
+                        </div>
+                    )}
+
                     <Button
                         type="submit"
-                        disabled={loading}
+                        disabled={isPending}
                         className="w-full flex justify-center items-center"
                         size="lg"
                     >
-                        {loading ? (
+                        {isPending ? (
                             <>
                                 <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
