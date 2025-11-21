@@ -18,7 +18,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <SuiClientProvider networks={networks} defaultNetwork={guafiConfig.network}>
-        <WalletProvider>
+        <WalletProvider autoConnect>
           <App />
         </WalletProvider>
       </SuiClientProvider>

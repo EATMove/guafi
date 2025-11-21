@@ -33,3 +33,8 @@ export function toMist(input: string | number): bigint {
     const numeric = typeof input === 'number' ? input : Number(input);
     return BigInt(Math.floor(numeric * 1_000_000_000));
 }
+
+export function shortAddress(addr: string, head = 6, tail = 4): string {
+    if (addr.length <= head + tail) return addr;
+    return `${addr.slice(0, head)}...${addr.slice(-tail)}`;
+}

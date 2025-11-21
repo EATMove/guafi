@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentAccount, useSuiClient, useSignAndExecuteTransaction } from '@mysten/dapp-kit';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
-import { buildJoinRumorTx, describeStatus, parseRumor, readablePrice } from '../lib/rumorClient';
+import { buildJoinRumorTx, describeStatus, parseRumor, parseTicket, readablePrice } from '../lib/rumorClient';
 import { guafiConfig } from '../lib/config';
 import { formatSui } from '../lib/format';
+import type { TicketView } from '../lib/types';
 
 const RumorDetail: React.FC = () => {
     const { id } = useParams();
@@ -33,6 +34,25 @@ const RumorDetail: React.FC = () => {
     });
 
     const progress = rumor ? (rumor.minParticipants === 0 ? 0 : Math.min((rumor.participants / rumor.minParticipants) * 100, 100)) : 0;
+    const { data: myTicket } = useQuery({
+        queryKey: ['ticket', id, account?.address],
+        enabled: Boolean(account?.address && id && guafiConfig.packageId),
+        queryFn: async () => {
+            if (!account?.address || !id || !guafiConfig.packageId) return null;
+            const ticketType = `${guafiConfig.packageId}::guafi::Ticket`;
+            const owned = await client.getOwnedObjects({
+                owner: account.address,
+                filter: { StructType: ticketType },
+                options: { showContent: true },
+            });
+            const ticket: TicketView | null =
+                owned.data
+                    .map(parseTicket)
+                    .find((t) => t && t.rumorId === id) || null;
+            return ticket;
+        },
+    });
+    const hasAccess = useMemo(() => rumor?.status === 'unlocked' && Boolean(myTicket), [rumor?.status, myTicket]);
 
     const handleJoin = async () => {
         setError(null);
@@ -101,10 +121,10 @@ const RumorDetail: React.FC = () => {
 
                             <div className="border-2 border-pop-black rounded-xl p-8 bg-gray-50 shadow-hard">
                                 <h3 className="text-2xl font-black mb-6 border-b-2 border-pop-black pb-2 inline-block">Rumor Content</h3>
-                                {rumor.status === 'unlocked' ? (
+                                {hasAccess ? (
                                     <div className="prose max-w-none text-lg font-medium text-pop-black">
                                         <p>Rumor ciphertext stored in Walrus blob: {rumor.blobId}</p>
-                                        <p className="text-sm text-gray-500">Frontend needs Seal to decrypt before showing content; placeholder for now.</p>
+                                        <p className="text-sm text-gray-500">You hold a Ticket. Request the Seal key to decrypt.</p>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center py-12 text-gray-400">
@@ -113,8 +133,8 @@ const RumorDetail: React.FC = () => {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                                             </svg>
                                         </div>
-                                        <p className="text-xl font-bold text-pop-black mb-2">Content is Encrypted</p>
-                                        <p className="text-base font-medium">Join this rumor to help unlock it.</p>
+                                        <p className="text-xl font-bold text-pop-black mb-2">{rumor.status === 'unlocked' ? 'You need a ticket to view this rumor.' : 'Content is Encrypted'}</p>
+                                        <p className="text-base font-medium">{rumor.status === 'unlocked' ? 'Join and get a Ticket to decrypt via Seal.' : 'Join this rumor to help unlock it.'}</p>
                                     </div>
                                 )}
                             </div>
@@ -152,6 +172,29 @@ const RumorDetail: React.FC = () => {
                                             {isPending ? 'Joining...' : `Pay ${readablePrice(rumor)} to Join`}
                                         </Button>
                                     )}
+                                </div>
+                            )}
+
+                            {rumor.status === 'unlocked' && !hasAccess && (
+                                <div className="border-t-4 border-pop-black pt-8">
+                                    <div className="flex items-center justify-between mb-6 bg-pop-blue/10 p-4 rounded-xl border-2 border-pop-blue">
+                                        <div>
+                                            <p className="text-sm font-bold text-pop-blue uppercase tracking-wider">Unlocked</p>
+                                            <p className="text-3xl font-black text-pop-black">{readablePrice(rumor)}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm font-bold text-pop-blue uppercase tracking-wider">Join to view</p>
+                                            <p className="text-xl font-black text-pop-green">Ticket required</p>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        onClick={handleJoin}
+                                        size="lg"
+                                        className="w-full text-xl py-4"
+                                        disabled={isPending}
+                                    >
+                                        {isPending ? 'Joining...' : `Pay ${readablePrice(rumor)} to Get Ticket`}
+                                    </Button>
                                 </div>
                             )}
                         </>

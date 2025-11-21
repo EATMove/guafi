@@ -8,6 +8,7 @@ import { Button } from '../components/Button';
 import { describeStatus, parseRumor, readablePrice } from '../lib/rumorClient';
 import { guafiConfig } from '../lib/config';
 import type { RumorView } from '../lib/types';
+import { shortAddress } from '../lib/format';
 
 const RumorList: React.FC = () => {
     const client = useSuiClient();
@@ -104,7 +105,9 @@ const RumorList: React.FC = () => {
                                     }`}>
                                     {describeStatus(rumor.status)}
                                 </span>
-                                <span className="text-pop-black font-mono font-bold truncate max-w-[120px] text-right">{rumor.id}</span>
+                                <div className="text-right">
+                                    <span className="text-gray-500 font-mono font-bold text-xs truncate max-w-[140px]">{shortAddress(rumor.id)}</span>
+                                </div>
                             </div>
 
                             <h2 className="text-2xl font-black mb-4 text-pop-black leading-tight break-words">{rumor.title}</h2>
