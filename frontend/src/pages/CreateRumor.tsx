@@ -5,7 +5,7 @@ import { useCurrentAccount, useSignAndExecuteTransaction, useSuiClient } from '@
 import { Card } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { buildCreateRumorTx } from '../lib/rumorClient';
+import { buildCreateRumorTx } from '../lib/rumorParse';
 import { guafiConfig } from '../lib/config';
 import { uploadBlob } from '../lib/walrus/uploadHTTP';
 import { encryptRumorContent } from '../lib/seal';
@@ -19,6 +19,7 @@ const CreateRumor: React.FC = () => {
     
     // Form State
     const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
     const [price, setPrice] = useState<number>(0.1);
     const [minParticipants, setMinParticipants] = useState<number>(10);
     const [file, setFile] = useState<File | null>(null);
@@ -71,6 +72,7 @@ const CreateRumor: React.FC = () => {
             setStatusMsg('Minting Rumor on Sui...');
             const tx = buildCreateRumorTx({
                 title,
+                description,
                 blobId,
                 price,
                 minParticipants,
@@ -115,6 +117,16 @@ const CreateRumor: React.FC = () => {
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                     />
+
+                    <div className="space-y-2">
+                        <label className="block text-sm font-bold text-pop-black uppercase tracking-wider">Description</label>
+                        <textarea
+                            className="w-full p-4 bg-white border-2 border-pop-black rounded-lg font-bold focus:outline-none focus:shadow-[4px_4px_0px_0px_#000] transition-all resize-none h-24"
+                            placeholder="Tell us more about this rumor..."
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                        />
+                    </div>
 
                     <div>
                         <label className="block font-bold mb-2 text-pop-black">Content (PDF File)</label>

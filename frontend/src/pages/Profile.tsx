@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCurrentAccount, useSuiClient, useSignAndExecuteTransaction } from '@mysten/dapp-kit';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { buildClaimRewardTx, parseRumor, parseTicket, rewardAmount, describeStatus } from '../lib/rumorClient';
+import { buildClaimRewardTx, parseRumor, parseTicket, rewardAmount, describeStatus } from '../lib/rumorParse';
 import { guafiConfig } from '../lib/config';
 import { formatSui, shortAddress } from '../lib/format';
 import type { TicketView, RumorView } from '../lib/types';

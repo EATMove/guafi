@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '../ui/Card';
 import { StatusBadge } from '../StatusBadge';
-import { readablePrice } from '../../lib/rumorClient';
+import { readablePrice } from '../../lib/rumorParse';
 import type { RumorView } from '../../lib/types';
 
 interface Props {

@@ -1,7 +1,7 @@
 import { useSuiClient } from '@mysten/dapp-kit';
 import { useQuery } from '@tanstack/react-query';
 import { guafiConfig } from '../lib/config';
-import { parseRumor } from '../lib/rumorClient';
+import { parseRumor } from '../lib/rumorParse';
 import type { RumorView } from '../lib/types';
 
 export function useRumors() {

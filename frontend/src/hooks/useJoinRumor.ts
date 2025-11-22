@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSignAndExecuteTransaction, useSuiClient } from '@mysten/dapp-kit';
 import { useQueryClient } from '@tanstack/react-query';
-import { buildJoinRumorTx } from '../lib/rumorClient';
+import { buildJoinRumorTx } from '../lib/rumorParse';
 import { guafiConfig } from '../lib/config';
 import type { RumorView } from '../lib/types';
 

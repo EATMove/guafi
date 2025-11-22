@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useSuiClient, useCurrentAccount } from '@mysten/dapp-kit';
 import { guafiConfig } from '../lib/config';
-import { parseRumor, parseTicket } from '../lib/rumorClient';
+import { parseRumor, parseTicket } from '../lib/rumorParse';
 
 export function useRumorDetail(id?: string) {
     const client = useSuiClient();

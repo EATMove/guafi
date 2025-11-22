@@ -25,10 +25,12 @@ export function parseRumor(obj: SuiObjectResponse): RumorView | null {
     const rewardPoolRaw = fields.reward_pool;
     const principalRaw = fields.principal_vault;
     const title = fields.title as string | undefined;
+    const description = fields.description as string | undefined;
 
     return {
         id: obj.data.objectId,
         title: title || (fields.blob_id as string),
+        description: description || '',
         blobId: fields.blob_id as string,
         price: BigInt(fields.price as string),
         minParticipants: Number(fields.min_participants),
@@ -63,6 +65,7 @@ export function rewardAmount(rumor: RumorView, ticket: TicketView): bigint {
 export function buildCreateRumorTx(params: {
     title: string;
     blobId: string;
+    description: string;
     price: number;
     minParticipants: number;
     deadlineMs?: number;
@@ -76,6 +79,7 @@ export function buildCreateRumorTx(params: {
         arguments: [
             tx.pure.string(params.title),
             tx.pure.string(params.blobId),
+            tx.pure.string(params.description),
             tx.pure.u64(priceMist),
             tx.pure.u64(params.minParticipants),
             tx.pure.u64(params.deadlineMs ?? 0),

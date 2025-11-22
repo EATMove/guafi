@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '../ui/Button';
-import { readablePrice } from '../../lib/rumorClient';
+import { readablePrice } from '../../lib/rumorParse';
 import { formatSui } from '../../lib/format';
 import type { RumorView } from '../../lib/types';
 

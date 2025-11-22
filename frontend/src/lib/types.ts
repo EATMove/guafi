@@ -3,6 +3,7 @@ export type RumorStatus = 'pending' | 'unlocked' | 'failed';
 export interface RumorView {
     id: string;
     title: string;
+    description: string;
     blobId: string;
     price: bigint;
     minParticipants: number;

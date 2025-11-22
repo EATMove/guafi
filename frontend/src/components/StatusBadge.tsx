@@ -1,5 +1,5 @@
 import React from 'react';
-import { describeStatus } from '../lib/rumorClient';
+import { describeStatus } from '../lib/rumorParse';
 import type { RumorStatus } from '../lib/types';
 
 interface Props {
