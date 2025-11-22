@@ -33,7 +33,7 @@ const RumorDetail: React.FC = () => {
             <Card className="overflow-hidden p-0">
                 {/* Header Switching Logic */}
                 {!isDecrypted ? (
-                    <RumorDashboard rumor={rumor} ticket={ticket} />
+                    <RumorDashboard rumor={rumor} />
                 ) : (
                     <div className="bg-pop-yellow/20 p-6 border-b-4 border-pop-black flex justify-between items-center sticky top-0 z-20 backdrop-blur-sm">
                         <div className="flex items-center gap-4">
