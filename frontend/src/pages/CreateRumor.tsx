@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCurrentAccount, useSignAndExecuteTransaction } from '@mysten/dapp-kit';
-import { Card } from '../components/Card';
-import { Input } from '../components/Input';
-import { Button } from '../components/Button';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCurrentAccount, useSignAndExecuteTransaction, useSuiClient } from '@mysten/dapp-kit';
+import { Card } from '../components/ui/Card';
+import { Input } from '../components/ui/Input';
+import { Button } from '../components/ui/Button';
 import { buildCreateRumorTx } from '../lib/rumorClient';
 import { guafiConfig } from '../lib/config';
 import { uploadBlob } from '../lib/walrus/uploadHTTP';
@@ -11,6 +12,8 @@ import { encryptRumorContent } from '../lib/seal';
 
 const CreateRumor: React.FC = () => {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const client = useSuiClient();
     const account = useCurrentAccount();
     const { mutateAsync, isPending: isTxPending } = useSignAndExecuteTransaction();
     
@@ -27,7 +30,14 @@ const CreateRumor: React.FC = () => {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
+            const selectedFile = e.target.files[0];
+            if (selectedFile.type !== 'application/pdf' && !selectedFile.name.toLowerCase().endsWith('.pdf')) {
+                setError('Only PDF files are allowed.');
+                setFile(null);
+                return;
+            }
+            setFile(selectedFile);
+            setError(null);
         }
     };
 
@@ -70,8 +80,15 @@ const CreateRumor: React.FC = () => {
             await mutateAsync(
                 { transaction: tx },
                 {
-                    onSuccess: () => {
+                    onSuccess: async (result) => {
+                        setStatusMsg('Waiting for blockchain confirmation...');
+                        
+                        await client.waitForTransaction({
+                            digest: result.digest,
+                        });
+
                         setStatusMsg('Success!');
+                        await queryClient.invalidateQueries({ queryKey: ['rumors'] });
                         navigate('/');
                     },
                 },
@@ -100,14 +117,14 @@ const CreateRumor: React.FC = () => {
                     />
 
                     <div>
-                        <label className="block font-bold mb-2 text-pop-black">Content (File)</label>
+                        <label className="block font-bold mb-2 text-pop-black">Content (PDF File)</label>
                         <div className="border-2 border-dashed border-pop-black rounded-lg p-6 text-center hover:bg-pop-yellow/20 transition cursor-pointer group bg-white relative">
                             <input 
                                 type="file" 
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
                                 id="file-upload"
                                 onChange={handleFileChange}
-                                // accept=".txt,.md,.json" // 移除限制，支持任意文件
+                                accept="application/pdf,.pdf" 
                             />
                             <div className="pointer-events-none">
                                 {file ? (
@@ -117,9 +134,9 @@ const CreateRumor: React.FC = () => {
                                 ) : (
                                     <>
                                         <span className="text-pop-blue font-black text-lg group-hover:scale-110 inline-block transition-transform">
-                                            Click to Upload File
+                                            Click to Upload PDF
                                         </span>
-                                        <p className="text-xs font-bold text-gray-500 mt-2">Support all formats (Encrypted)</p>
+                                        <p className="text-xs font-bold text-gray-500 mt-2">Only PDF files supported (Encrypted)</p>
                                     </>
                                 )}
                             </div>
