@@ -48,6 +48,6 @@ export function useDecryptRumor() {
         }
     };
 
-    return { decrypt, contentUrl, isDecrypting, error };
+    return { decrypt, contentUrl, isDecrypting, error, setContentUrl };
 }
 

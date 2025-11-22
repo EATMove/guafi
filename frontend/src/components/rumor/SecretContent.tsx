@@ -16,50 +16,90 @@ export const SecretContent: React.FC<Props> = ({
     isDecrypting, 
     onDecrypt 
 }) => {
-    return (
-        <div className="border-2 border-pop-black rounded-xl p-8 bg-gray-50 shadow-hard min-h-[300px] flex flex-col">
-            <h3 className="text-2xl font-black mb-6 border-b-2 border-pop-black pb-2 inline-block">
-                The Secret Content
-            </h3>
+    const canReveal = status === 'access_granted';
+    const isRevealed = status === 'decrypted';
 
-            {status === 'decrypted' && contentUrl ? (
-                <div className="flex-1 animate-fade-in">
-                    <div className="bg-white p-4 border-2 border-pop-black rounded mb-4">
-                        <p className="font-bold text-green-600 mb-2">✅ Decrypted Successfully!</p>
-                        <div className="flex gap-2">
-                            <a href={contentUrl} download="secret.pdf" className="text-blue-600 underline font-bold hover:text-blue-800">Download</a>
-                            <span className="text-gray-400">|</span>
-                            <a href={contentUrl} target="_blank" rel="noreferrer" className="text-blue-600 underline font-bold hover:text-blue-800">Open New Tab</a>
+    return (
+        <div className={`relative overflow-hidden rounded-xl border-4 transition-all duration-500 ${
+            isRevealed ? 'border-pop-green bg-white shadow-none' : 'border-pop-black bg-gray-100 shadow-hard'
+        }`}>
+            
+            {/* Status Bar */}
+            <div className={`p-4 border-b-4 border-pop-black flex justify-between items-center ${
+                isRevealed ? 'bg-pop-green text-white' : 'bg-pop-black text-white'
+            }`}>
+                <h3 className="font-black uppercase tracking-widest text-lg flex items-center gap-2">
+                    {isRevealed ? '🔓 Decrypted Payload' : '🔒 Encrypted Payload'}
+                </h3>
+                <div className="flex gap-1">
+                    <div className="w-3 h-3 rounded-full bg-white/50"></div>
+                    <div className="w-3 h-3 rounded-full bg-white/50"></div>
+                    <div className="w-3 h-3 rounded-full bg-white/50"></div>
+                </div>
+            </div>
+
+            <div className="p-8 min-h-[400px] flex flex-col relative">
+                
+                {/* Case 1: Decrypted Content */}
+                {isRevealed && contentUrl ? (
+                    <div className="flex-1 animate-fade-in flex flex-col">
+                        <div className="mb-4 flex gap-4 text-sm font-bold bg-gray-50 p-2 rounded border-2 border-gray-200 inline-flex self-start">
+                            <a href={contentUrl} download="secret.pdf" className="text-pop-blue hover:underline flex items-center gap-1">
+                                <span>⬇</span> Download PDF
+                            </a>
+                            <span className="text-gray-300">|</span>
+                            <a href={contentUrl} target="_blank" rel="noreferrer" className="text-pop-blue hover:underline flex items-center gap-1">
+                                <span>↗</span> Open in New Tab
+                            </a>
                         </div>
+                        <iframe 
+                            src={contentUrl} 
+                            className="w-full flex-1 border-4 border-pop-black rounded bg-white min-h-[600px] shadow-inner"
+                            title="Decrypted Content"
+                        />
                     </div>
-                    <iframe 
-                        src={contentUrl} 
-                        className="w-full h-[500px] border-2 border-gray-200 rounded bg-white"
-                        title="Decrypted Content"
-                    >
-                        <p>Your browser does not support PDF iframes.</p>
-                    </iframe>
-                </div>
-            ) : status === 'access_granted' ? (
-                <div className="flex flex-col items-center justify-center flex-1 py-10">
-                    <div className="mb-6 text-6xl">🔓</div>
-                    <h4 className="text-2xl font-bold mb-2">You have access!</h4>
-                    <p className="text-gray-500 mb-6 text-center max-w-md text-xl">
-                        Content is encrypted on Walrus. Use your Ticket to decrypt via Seal.
-                    </p>
-                    {error && <div className="mb-4 p-2 bg-red-100 text-red-600 text-sm font-bold border border-red-200 rounded">{error}</div>}
-                    <Button onClick={onDecrypt} disabled={isDecrypting} size="lg" className="px-8">
-                        {isDecrypting ? 'Decrypting...' : 'Reveal Content'}
-                    </Button>
-                </div>
-            ) : (
-                <div className="flex flex-col items-center justify-center flex-1 py-10 text-gray-400">
-                    <div className="mb-6 text-6xl">🔒</div>
-                    <h4 className="text-2xl font-bold text-gray-500 mb-2">Content Encrypted</h4>
-                    <p className="text-xl">Purchase a ticket or wait for unlock.</p>
-                </div>
-            )}
+                ) : (
+                    // Case 2 & 3: Locked or Ready to Reveal
+                    <div className="flex-1 flex flex-col items-center justify-center text-center z-10 py-12">
+                        
+                        {/* Background Pattern */}
+                        <div className="absolute inset-0 opacity-5 pointer-events-none" 
+                             style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+                        </div>
+                        
+                        <div className="mb-6 transform scale-150 animate-bounce-in">
+                            {canReveal ? '🔐' : '🚫'}
+                        </div>
+
+                        <h4 className="text-4xl font-black text-pop-black mb-4 uppercase tracking-tight">
+                            {canReveal ? 'Access Granted' : 'Top Secret'}
+                        </h4>
+                        
+                        <p className="text-lg font-bold text-gray-500 max-w-md mb-8 leading-relaxed">
+                            {canReveal 
+                                ? "You have the key! Click below to decrypt the secret content from Walrus."
+                                : "This content is encrypted. Join the rumor and wait for the unlock threshold to view it."}
+                        </p>
+
+                        {error && (
+                            <div className="mb-8 p-4 bg-pop-pink text-white font-bold border-2 border-pop-black shadow-hard-sm -rotate-1 max-w-md">
+                                ⚠️ Error: {error}
+                            </div>
+                        )}
+
+                        {canReveal && (
+                            <Button 
+                                onClick={onDecrypt} 
+                                disabled={isDecrypting} 
+                                size="lg" 
+                                className="px-12 py-6 text-xl shadow-hard hover:shadow-none hover:translate-y-1 transition-all bg-pop-green text-white border-2 border-pop-black"
+                            >
+                                {isDecrypting ? 'Decrypting...' : 'REVEAL CONTENT'}
+                            </Button>
+                        )}
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
-

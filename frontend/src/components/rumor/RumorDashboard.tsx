@@ -1,13 +1,14 @@
 import React from 'react';
 import { StatusBadge } from '../StatusBadge';
 import { formatSui } from '../../lib/format';
-import type { RumorView } from '../../lib/types';
+import type { RumorView, TicketView } from '../../lib/types';
 
 interface Props {
     rumor: RumorView;
+    ticket?: TicketView | null;
 }
 
-export const RumorDashboard: React.FC<Props> = ({ rumor }) => {
+export const RumorDashboard: React.FC<Props> = ({ rumor, ticket }) => {
     const progress = rumor.minParticipants === 0 
         ? 0 
         : Math.min((rumor.participants / rumor.minParticipants) * 100, 100);
