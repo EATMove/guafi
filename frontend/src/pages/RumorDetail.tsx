@@ -52,7 +52,15 @@ const RumorDetail: React.FC = () => {
             return ticket;
         },
     });
-    const hasAccess = useMemo(() => rumor?.status === 'unlocked' && Boolean(myTicket), [rumor?.status, myTicket]);
+    const isCreator = useMemo(() => {
+        const addr = account?.address;
+        if (!rumor || !addr) return false;
+        return rumor.creator.toLowerCase() === addr.toLowerCase();
+    }, [rumor, account]);
+    const hasAccess = useMemo(
+        () => rumor?.status === 'unlocked' && (Boolean(myTicket) || Boolean(isCreator)),
+        [rumor?.status, myTicket, isCreator]
+    );
 
     const handleJoin = async () => {
         setError(null);
@@ -124,7 +132,9 @@ const RumorDetail: React.FC = () => {
                                 {hasAccess ? (
                                     <div className="prose max-w-none text-lg font-medium text-pop-black">
                                         <p>Rumor ciphertext stored in Walrus blob: {rumor.blobId}</p>
-                                        <p className="text-sm text-gray-500">You hold a Ticket. Request the Seal key to decrypt.</p>
+                                        <p className="text-sm text-gray-500">
+                                            {isCreator ? 'You are the creator; use seal_approve_creator to request the key.' : 'You hold a Ticket; use seal_approve to request the key.'}
+                                        </p>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center py-12 text-gray-400">
@@ -175,7 +185,7 @@ const RumorDetail: React.FC = () => {
                                 </div>
                             )}
 
-                            {rumor.status === 'unlocked' && !hasAccess && (
+                            {rumor.status === 'unlocked' && !hasAccess && !isCreator && (
                                 <div className="border-t-4 border-pop-black pt-8">
                                     <div className="flex items-center justify-between mb-6 bg-pop-blue/10 p-4 rounded-xl border-2 border-pop-blue">
                                         <div>

@@ -350,6 +350,14 @@ module guafi::guafi {
         ticket.rumor_id == object::id(rumor) && rumor.status == STATUS_UNLOCKED
     }
 
+    // Creator-specific access: unlocked rumor and caller is the creator.
+    public fun seal_approve_creator(
+        rumor: &Rumor,
+        user: address
+    ): bool {
+        rumor.status == STATUS_UNLOCKED && user == rumor.creator
+    }
+
     // Legacy function for backward compatibility
     public fun check_access(rumor: &Rumor, _user: address): bool {
         rumor.status == STATUS_UNLOCKED
