@@ -12,6 +12,7 @@ export const RumorDashboard: React.FC<Props> = ({ rumor }) => {
         ? 0 
         : Math.min((rumor.participants / rumor.minParticipants) * 100, 100);
 
+
     return (
         <div className="bg-white border-b-4 border-pop-black p-8 bg-pop-yellow/10">
             {/* Top Meta */}
@@ -33,7 +34,7 @@ export const RumorDashboard: React.FC<Props> = ({ rumor }) => {
             </h1>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white rounded-xl border-2 border-pop-black p-6 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white rounded-xl border-2 border-pop-black p-6 shadow-sm">
                 {/* Progress Column */}
                 <div className="space-y-2">
                     <div className="flex justify-between text-sm font-bold text-gray-500">
@@ -55,19 +56,28 @@ export const RumorDashboard: React.FC<Props> = ({ rumor }) => {
                     </p>
                 </div>
 
-                {/* Reward Pool Column */}
-                <div className="flex flex-col justify-center border-t-2 md:border-t-0 md:border-l-2 border-gray-100 pt-4 md:pt-0 md:pl-6">
-                    <p className="text-sm font-bold text-gray-500 uppercase tracking-wider">Reward Pool</p>
-                    <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-black text-pop-green">{formatSui(rumor.rewardPool)}</span>
-                        <span className="text-lg font-bold text-gray-400">SUI</span>
+                {/* Financials Column */}
+                <div className="flex flex-col justify-center border-t-2 md:border-t-0 md:border-l-2 border-gray-100 pt-4 md:pt-0 md:pl-6 space-y-3">
+                    <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Entry Price</p>
+                        <p className="text-lg font-black text-pop-black">{formatSui(rumor.price)} SUI</p>
                     </div>
-                    <p className="text-xs font-bold text-pop-blue mt-1">
-                        50% of entry fees go here
-                    </p>
+                    <div>
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Reward Pool</p>
+                        <p className="text-xl font-black text-pop-green">{formatSui(rumor.rewardPool)} SUI</p>
+                    </div>
+                </div>
+
+                {/* My Stats / CTA Column */}
+                <div className="flex flex-col justify-center border-t-2 md:border-t-0 md:border-l-2 border-gray-100 pt-4 md:pt-0 md:pl-6">  
+                        <div className="text-sm text-gray-500">
+                            <p className="font-medium">Join now to earn <span className="font-bold text-pop-green">50%</span> of future entry fees!</p>
+                            <p className="text-xs mt-2 text-gray-400">Early participants earn more.</p>
+                        </div>
                 </div>
             </div>
         </div>
     );
 };
+
 

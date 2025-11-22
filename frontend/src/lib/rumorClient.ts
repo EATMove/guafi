@@ -15,8 +15,15 @@ export function parseRumor(obj: SuiObjectResponse): RumorView | null {
     const status: RumorStatus =
         statusNum === 1 ? 'unlocked' : statusNum === 2 ? 'failed' : 'pending';
 
-    const rewardPoolRaw = fields.reward_pool as { fields?: { value?: string } } | undefined;
-    const principalRaw = fields.principal_vault as { fields?: { value?: string } } | undefined;
+    const getBalance = (raw: any) => {
+        if (!raw) return 0n;
+        if (typeof raw === 'string' || typeof raw === 'number') return BigInt(raw);
+        if (raw.fields && raw.fields.value) return BigInt(raw.fields.value);
+        return 0n;
+    };
+
+    const rewardPoolRaw = fields.reward_pool;
+    const principalRaw = fields.principal_vault;
     const title = fields.title as string | undefined;
 
     return {
@@ -29,8 +36,8 @@ export function parseRumor(obj: SuiObjectResponse): RumorView | null {
         deadline: Number(fields.deadline),
         status,
         creator: fields.creator as string,
-        rewardPool: BigInt((rewardPoolRaw?.fields?.value as string | undefined) ?? '0'),
-        principal: BigInt((principalRaw?.fields?.value as string | undefined) ?? '0'),
+        rewardPool: getBalance(rewardPoolRaw),
+        principal: getBalance(principalRaw),
         accRewardPerShare: BigInt(fields.acc_reward_per_share as string),
     };
 }
