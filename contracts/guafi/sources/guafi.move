@@ -18,6 +18,8 @@ module guafi::guafi {
     const ENoReward: u64 = 6;
     const ENotUnlocked: u64 = 7;
     const EInvalidTicket: u64 = 8;
+    const ENotAdmin: u64 = 9;
+    const ENoProtocolFunds: u64 = 10;
 
     // Constants
     const BASIS_POINTS: u64 = 10000;
@@ -232,10 +234,6 @@ module guafi::guafi {
                 // Remaining Beta to reward pool
                 rumor.reward_pool.join(all_funds);
 
-                // Bootstrap acc_reward_per_share for the beta contributed by the first batch.
-                // Without this, the initial participants would see zero pending rewards until a later join.
-                let delta = (beta_total as u128 * REWARD_PRECISION) / (rumor.participants_count as u128);
-                rumor.acc_reward_per_share = rumor.acc_reward_per_share + delta;
 
                 event::emit(RumorUnlocked { rumor_id: object::id(rumor) });
             };
@@ -327,6 +325,46 @@ module guafi::guafi {
             participant: ctx.sender(),
             amount: refund_amount,
         });
+    }
+
+    public entry fun update_admin(
+        config: &mut GuafiConfig,
+        new_admin: address,
+        ctx: &mut TxContext
+    ) {
+        assert!(ctx.sender() == config.admin, ENotAdmin);
+        config.admin = new_admin;
+    }
+
+    public entry fun withdraw_protocol_fee(
+        config: &mut GuafiConfig,
+        amount: u64,
+        ctx: &mut TxContext
+    ) {
+        assert!(ctx.sender() == config.admin, ENotAdmin);
+
+        let available = config.protocol_vault.value();
+        assert!(available >= amount, ENoProtocolFunds);
+
+        if (amount > 0) {
+            let coin_balance = config.protocol_vault.split(amount);
+            let coin = coin::from_balance(coin_balance, ctx);
+            transfer::public_transfer(coin, ctx.sender());
+        }
+    }
+
+    public entry fun withdraw_all_protocol_fee(
+        config: &mut GuafiConfig,
+        ctx: &mut TxContext
+    ) {
+        assert!(ctx.sender() == config.admin, ENotAdmin);
+
+        let available = config.protocol_vault.value();
+        if (available > 0) {
+            let coin_balance = config.protocol_vault.split(available);
+            let coin = coin::from_balance(coin_balance, ctx);
+            transfer::public_transfer(coin, ctx.sender());
+        }
     }
 
     // For Seal Integration
