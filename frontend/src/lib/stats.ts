@@ -144,3 +144,77 @@ export async function computeParticipantStats(
 
     return { spent, claimed, joins: joinCount };
 }
+
+export async function computeUserStats(
+    client: SuiClient,
+    packageId: string,
+    user: string,
+    opts?: { pageLimit?: number; pages?: number }
+): Promise<{
+    creator: { alphaEarned: bigint; joinCount: number };
+    participant: { spent: bigint; claimed: bigint; joins: number };
+}> {
+    const pageLimit = opts?.pageLimit ?? 200;
+    const pages = opts?.pages ?? 20;
+
+    const created = await listEvents<RumorCreatedEvent>(
+        client,
+        `${packageId}::guafi::RumorCreated`,
+        pageLimit,
+        pages
+    );
+    const joined = await listEvents<RumorJoinedEvent>(
+        client,
+        `${packageId}::guafi::RumorJoined`,
+        pageLimit,
+        pages
+    );
+    const claimedEvents = await listEvents<RewardClaimedEvent>(
+        client,
+        `${packageId}::guafi::RewardClaimed`,
+        pageLimit,
+        pages
+    );
+
+    // creator stats
+    const myRumors = new Map<string, bigint>();
+    created.forEach((evt) => {
+        if (evt.creator.toLowerCase() == user.toLowerCase()) {
+            myRumors.set(evt.rumor_id, toBig(evt.price));
+        }
+    });
+    let alphaEarned = 0n;
+    let creatorJoinCount = 0;
+    joined.forEach((evt) => {
+        const price = myRumors.get(evt.rumor_id);
+        if (price !== undefined) {
+            alphaEarned += (price * ALPHA) / BASIS_POINTS;
+            creatorJoinCount += 1;
+        }
+    });
+
+    // participant stats
+    const priceIndex = new Map<string, bigint>();
+    created.forEach((evt) => {
+        priceIndex.set(evt.rumor_id, toBig(evt.price));
+    });
+    let spent = 0n;
+    let joins = 0;
+    joined.forEach((evt) => {
+        if (evt.participant.toLowerCase() == user.toLowerCase()) {
+            spent += priceIndex.get(evt.rumor_id) ?? 0n;
+            joins += 1;
+        }
+    });
+    let claimed = 0n;
+    claimedEvents.forEach((evt) => {
+        if (evt.participant.toLowerCase() == user.toLowerCase()) {
+            claimed += toBig(evt.amount);
+        }
+    });
+
+    return {
+        creator: { alphaEarned, joinCount: creatorJoinCount },
+        participant: { spent, claimed, joins },
+    };
+}
