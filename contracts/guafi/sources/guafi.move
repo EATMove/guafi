@@ -6,8 +6,6 @@ module guafi::guafi {
     use sui::balance::{Self, Balance};
     use sui::event;
     use sui::clock::{Clock};
-    use sui::object;
-    use sui::transfer;
 
     // Errors
     const EInvalidPrice: u64 = 0;
@@ -107,7 +105,7 @@ module guafi::guafi {
         transfer::share_object(config);
     }
 
-    public entry fun create_rumor(
+    public fun create_rumor(
         title: String,
         blob_id: String,
         price: u64,
@@ -150,7 +148,7 @@ module guafi::guafi {
         transfer::share_object(rumor);
     }
 
-    public entry fun join_rumor(
+    public fun join_rumor(
         rumor: &mut Rumor,
         config: &mut GuafiConfig,
         payment: Coin<SUI>,
@@ -233,8 +231,6 @@ module guafi::guafi {
 
                 // Remaining Beta to reward pool
                 rumor.reward_pool.join(all_funds);
-
-
                 event::emit(RumorUnlocked { rumor_id: object::id(rumor) });
             };
         };
@@ -247,7 +243,7 @@ module guafi::guafi {
         transfer::public_transfer(ticket, ctx.sender());
     }
 
-    public entry fun claim_reward(
+    public fun claim_reward(
         rumor: &mut Rumor,
         ticket: &mut Ticket,
         ctx: &mut TxContext
@@ -281,7 +277,7 @@ module guafi::guafi {
         };
     }
 
-    public entry fun refund(
+    public  fun refund(
         rumor: &mut Rumor,
         ticket: Ticket,
         clock: &Clock,
@@ -376,25 +372,16 @@ module guafi::guafi {
 
     // Seal approve function - called by Seal Keyserver to verify access
     // Returns true if user has valid ticket and rumor is unlocked
-    public fun seal_approve(
+    #[allow(unused_variable)]
+    entry fun seal_approve(
+        id:vector<u8>,
         rumor: &Rumor,
         ticket: &Ticket,
-        _user: address
-    ): bool {
-        // In Sui, if user can pass the ticket object, they own it
-        // So we just need to verify:
-        // 1. Ticket belongs to this rumor
-        // 2. Rumor is unlocked
-        ticket.rumor_id == object::id(rumor) && rumor.status == STATUS_UNLOCKED
+    ){
+        assert!(ticket.rumor_id == object::id(rumor), EInvalidTicket);
+        assert!(rumor.status == STATUS_UNLOCKED, ENotUnlocked);
     }
 
-    // Creator-specific access: unlocked rumor and caller is the creator.
-    public fun seal_approve_creator(
-        rumor: &Rumor,
-        user: address
-    ): bool {
-        rumor.status == STATUS_UNLOCKED && user == rumor.creator
-    }
 
     // Legacy function for backward compatibility
     public fun check_access(rumor: &Rumor, _user: address): bool {
