@@ -6,7 +6,7 @@ import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import { buildClaimRewardTx, parseRumor, parseTicket, rewardAmount, describeStatus } from '../lib/rumorClient';
 import { guafiConfig } from '../lib/config';
-import { formatSui } from '../lib/format';
+import { formatSui, shortAddress } from '../lib/format';
 import type { TicketView, RumorView } from '../lib/types';
 import { computeCreatorAlpha, computeParticipantStats } from '../lib/stats';
 
@@ -20,10 +20,10 @@ const Profile: React.FC = () => {
     const { data: tickets, isLoading, refetch, isFetching } = useQuery<Array<{ ticket: TicketView; rumor: RumorView }>>({
         queryKey: ['tickets', account?.address],
         enabled: statsEnabled,
-        staleTime: 30_000,
-        refetchOnWindowFocus: true,
+        staleTime: 60_000,
+        refetchOnWindowFocus: false,
         refetchOnReconnect: true,
-        refetchInterval: 10_000,
+        refetchInterval: 60_000,
         queryFn: async () => {
             if (!account?.address) return [];
             if (!guafiConfig.packageId) throw new Error('Missing VITE_PACKAGE_ID');
@@ -68,10 +68,10 @@ const Profile: React.FC = () => {
     const { data: creatorStats } = useQuery({
         queryKey: ['creatorStats', account?.address],
         enabled: statsEnabled,
-        staleTime: 60_000,
-        refetchOnWindowFocus: true,
+        staleTime: 120_000,
+        refetchOnWindowFocus: false,
         refetchOnReconnect: true,
-        refetchInterval: 15_000,
+        refetchInterval: 120_000,
         queryFn: async () => {
             if (!account?.address || !guafiConfig.packageId) return { alphaEarned: 0n, joinCount: 0 };
             return computeCreatorAlpha(client, guafiConfig.packageId, account.address);
@@ -81,10 +81,10 @@ const Profile: React.FC = () => {
     const { data: participantStats } = useQuery({
         queryKey: ['participantStats', account?.address],
         enabled: statsEnabled,
-        staleTime: 60_000,
-        refetchOnWindowFocus: true,
+        staleTime: 120_000,
+        refetchOnWindowFocus: false,
         refetchOnReconnect: true,
-        refetchInterval: 15_000,
+        refetchInterval: 120_000,
         queryFn: async () => {
             if (!account?.address || !guafiConfig.packageId) return { spent: 0n, claimed: 0n, joins: 0 };
             return computeParticipantStats(client, guafiConfig.packageId, account.address);
@@ -124,36 +124,28 @@ const Profile: React.FC = () => {
                     </div>
                     <div>
                         <h1 className="text-3xl font-black text-pop-black">My Profile</h1>
-                        <p className="text-gray-500 font-bold font-mono">{account.address}</p>
+                        <p className="text-gray-500 font-bold font-mono">{shortAddress(account.address, 8, 6)}</p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                     <div className="bg-pop-blue/10 p-6 rounded-xl border-2 border-pop-blue shadow-[4px_4px_0px_0px_#4D96FF]">
                         <p className="text-sm text-pop-blue font-bold uppercase tracking-wider">Total Spent (Tickets)</p>
                         <p className="text-3xl font-black text-pop-black">{formatSui(participantStats?.spent ?? summary.spent)} SUI</p>
-                    </div>
-                    <div className="bg-pop-green/10 p-6 rounded-xl border-2 border-pop-green shadow-[4px_4px_0px_0px_#6BCB77]">
-                        <p className="text-sm text-pop-green font-bold uppercase tracking-wider">Total Earned (Pending+Claimed)</p>
-                        <p className="text-3xl font-black text-pop-black">{formatSui(totalEarnedCombined)} SUI</p>
-                        <p className="text-xs font-bold text-gray-500 mt-1">Pending: {formatSui(totalPending)} / Claimed: {formatSui(totalClaimed)}</p>
                     </div>
                     <div className="bg-pop-pink/10 p-6 rounded-xl border-2 border-pop-pink shadow-[4px_4px_0px_0px_#FF6B6B]">
                         <p className="text-sm text-pop-pink font-bold uppercase tracking-wider">Rumors Joined</p>
                         <p className="text-3xl font-black text-pop-black">{participantStats?.joins ?? summary.count}</p>
                     </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <div className="bg-white p-5 rounded-xl border-2 border-pop-yellow shadow-[4px_4px_0px_0px_#F9D923]">
                         <p className="text-sm font-bold text-pop-black uppercase tracking-wider">Creator α Earnings</p>
                         <p className="text-3xl font-black text-pop-black">{formatSui(creatorStats?.alphaEarned ?? 0n)} SUI</p>
                         <p className="text-xs font-bold text-gray-500 mt-1">Joins to your rumors: {creatorStats?.joinCount ?? 0}</p>
                     </div>
-                    <div className="bg-white p-5 rounded-xl border-2 border-pop-blue shadow-[4px_4px_0px_0px_#4D96FF]">
-                        <p className="text-sm font-bold text-pop-black uppercase tracking-wider">Participant Claimed</p>
-                        <p className="text-3xl font-black text-pop-black">{formatSui(totalClaimed)} SUI</p>
-                        <p className="text-xs font-bold text-gray-500 mt-1">Event-based totals (β already withdrawn)</p>
+                    <div className="bg-white p-5 rounded-xl border-2 border-pop-green shadow-[4px_4px_0px_0px_#6BCB77]">
+                        <p className="text-sm font-bold text-pop-black uppercase tracking-wider">Participant Earned (Pending+Claimed)</p>
+                        <p className="text-3xl font-black text-pop-black">{formatSui(totalEarnedCombined)} SUI</p>
+                        <p className="text-xs font-bold text-gray-500 mt-1">Pending: {formatSui(totalPending)} / Claimed: {formatSui(totalClaimed)}</p>
                     </div>
                 </div>
             </Card>

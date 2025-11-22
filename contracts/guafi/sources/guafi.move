@@ -232,6 +232,11 @@ module guafi::guafi {
                 // Remaining Beta to reward pool
                 rumor.reward_pool.join(all_funds);
 
+                // Bootstrap acc_reward_per_share for the beta contributed by the first batch.
+                // Without this, the initial participants would see zero pending rewards until a later join.
+                let delta = (beta_total as u128 * REWARD_PRECISION) / (rumor.participants_count as u128);
+                rumor.acc_reward_per_share = rumor.acc_reward_per_share + delta;
+
                 event::emit(RumorUnlocked { rumor_id: object::id(rumor) });
             };
         };

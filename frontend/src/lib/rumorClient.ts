@@ -50,8 +50,7 @@ export function rewardAmount(rumor: RumorView, ticket: TicketView): bigint {
     if (rumor.status !== 'unlocked') return 0n;
     const pending = rumor.accRewardPerShare - ticket.rewardDebt;
     if (pending <= 0) return 0n;
-    const amount = pending / REWARD_PRECISION;
-    return amount < rumor.rewardPool ? amount : rumor.rewardPool;
+    return pending / REWARD_PRECISION;
 }
 
 export function buildCreateRumorTx(params: {
