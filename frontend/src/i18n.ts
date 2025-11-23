@@ -154,7 +154,7 @@ const resources = {
             "profile.title": "个人中心",
             "profile.total_spent": "总花费 (门票)",
             "profile.rumors_joined": "参与的瓜",
-            "profile.creator_earnings": "发布者 α 收益",
+            "profile.creator_earnings": "发布者收益",
             "profile.joins_count": "参与你发布的瓜的人数",
             "profile.participant_earned": "参与者收益 (待领取+已领取)",
             "profile.pending": "待领取",
