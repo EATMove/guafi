@@ -5,6 +5,7 @@ import { getFullnodeUrl } from '@mysten/sui/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@mysten/dapp-kit/dist/index.css';
 import './index.css';
+import './i18n';
 import App from './App.tsx';
 import { guafiConfig } from './lib/config';
 

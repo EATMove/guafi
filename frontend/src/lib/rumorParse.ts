@@ -15,10 +15,13 @@ export function parseRumor(obj: SuiObjectResponse): RumorView | null {
     const status: RumorStatus =
         statusNum === 1 ? 'unlocked' : statusNum === 2 ? 'failed' : 'pending';
 
-    const getBalance = (raw: any) => {
+    const getBalance = (raw: unknown) => {
         if (!raw) return 0n;
         if (typeof raw === 'string' || typeof raw === 'number') return BigInt(raw);
-        if (raw.fields && raw.fields.value) return BigInt(raw.fields.value);
+        if (typeof raw === 'object' && raw !== null && 'fields' in raw) {
+            const fields = (raw as { fields: { value: string | number } }).fields;
+            if (fields && fields.value) return BigInt(fields.value);
+        }
         return 0n;
     };
 

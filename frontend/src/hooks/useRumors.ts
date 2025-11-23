@@ -12,12 +12,12 @@ export function useRumors() {
         enabled: !!guafiConfig.packageId,
         queryFn: async () => {
             if (!guafiConfig.packageId) return [];
-            
+
             const events = await client.queryEvents({
                 query: {
-                    MoveModule: { 
-                        package: guafiConfig.packageId, 
-                        module: 'guafi' 
+                    MoveModule: {
+                        package: guafiConfig.packageId,
+                        module: 'guafi'
                     }
                 },
                 limit: 50,
@@ -25,8 +25,8 @@ export function useRumors() {
             });
 
             const createdEvents = events.data.filter(e => e.type.includes('::RumorCreated'));
-            const rumorIds = createdEvents.map(e => (e.parsedJson as any).rumor_id);
-            
+            const rumorIds = createdEvents.map(e => (e.parsedJson as { rumor_id: string }).rumor_id);
+
             if (rumorIds.length === 0) return [];
 
             const objects = await client.multiGetObjects({

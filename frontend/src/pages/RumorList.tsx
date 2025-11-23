@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../components/ui/Button';
 import { RumorCard } from '../components/rumor/RumorCard';
 import { useRumors } from '../hooks/useRumors';
 
 const RumorList: React.FC = () => {
+    const { t } = useTranslation();
     const { data: rumors, isLoading, error } = useRumors();
 
     if (isLoading) {
@@ -18,7 +20,7 @@ const RumorList: React.FC = () => {
     if (error) {
         return (
             <div className="bg-pop-pink/10 border-4 border-pop-pink p-8 rounded-xl text-center">
-                <h3 className="text-2xl font-black text-pop-black mb-2">Oops!</h3>
+                <h3 className="text-2xl font-black text-pop-black mb-2">{t('common.oops')}</h3>
                 <p className="font-bold text-gray-600">{(error as Error).message}</p>
             </div>
         );
@@ -30,7 +32,7 @@ const RumorList: React.FC = () => {
             <div className="flex justify-end items-center">
                 <Link to="/create">
                     <Button size="lg" className="px-8 py-3 text-lg font-bold shadow-hard hover:shadow-none hover:translate-y-1 transition-all">
-                        Add Rumor
+                        {t('rumor.add')}
                     </Button>
                 </Link>
             </div>
@@ -44,7 +46,7 @@ const RumorList: React.FC = () => {
                 </div>
             ) : (
                 <div className="text-center py-20 bg-gray-50 border-4 border-dashed border-gray-300 rounded-2xl">
-                    <p className="text-2xl font-bold text-gray-400">No rumors yet. Be the first!</p>
+                    <p className="text-2xl font-bold text-gray-400">{t('rumor.no_rumors')}</p>
                 </div>
             )}
         </div>

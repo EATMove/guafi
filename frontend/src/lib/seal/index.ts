@@ -9,7 +9,7 @@ const suiClient = new SuiClient({ url: getFullnodeUrl(SUI_NETWORK) });
 
 // Seal 节点配置
 const SERVER_OBJECT_IDS = [
-    "0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75", 
+    "0x73d05d62c18d9374e3ea529e8e0ed6161da1a141a94d3f76ae3fe4e99356db75",
     "0xf5d14a81a982144ae441cd7d64b09027f116a468bd36e7eca494f750591623c8",
     "0x6068c0acb197dddbacd4746a9de7f025b2ed5a5b6c1b1ab44dade4426d141da2"
 ];
@@ -29,14 +29,14 @@ let sessionKeyExpiry: number = 0;
 let sessionKeyOwner: string = '';
 
 async function getOrCreateSessionKey(
-    currentAddress: string, 
+    currentAddress: string,
     signMessage: (args: { message: Uint8Array }) => Promise<{ signature: string }>
 ): Promise<SessionKey> {
     const now = Date.now();
-    
+
     // Check cache: exists, not expired (buffer 1min), and belongs to current user
-    if (cachedSessionKey && 
-        now < sessionKeyExpiry - 60000 && 
+    if (cachedSessionKey &&
+        now < sessionKeyExpiry - 60000 &&
         sessionKeyOwner === currentAddress
     ) {
         return cachedSessionKey;
@@ -47,7 +47,7 @@ async function getOrCreateSessionKey(
     const sessionKey = await SessionKey.create({
         address: currentAddress,
         packageId: guafiConfig.packageId || "",
-        ttlMin, 
+        ttlMin,
         suiClient,
     });
 
@@ -69,16 +69,14 @@ async function getOrCreateSessionKey(
 export async function encryptRumorContent(fileOrData: File) {
     if (!guafiConfig.packageId) throw new Error("Package ID not configured");
 
-    let data: Uint8Array;
-
     const buffer = await fileOrData.arrayBuffer();
-    data = new Uint8Array(buffer);
-    
+    const data = new Uint8Array(buffer);
+
     // 调用 Seal 加密
     const { encryptedObject, key } = await sealClient.encrypt({
         threshold: 2, // 至少需要2个节点验证
         packageId: guafiConfig.packageId,
-        id: guafiConfig.packageId, 
+        id: guafiConfig.packageId,
         data,
     });
 
@@ -104,7 +102,7 @@ export async function decryptRumorContent(
     ticketId: string,
     currentAddress: string,
     signMessage: (args: { message: Uint8Array }) => Promise<{ signature: string }>
-): Promise<Uint8Array> { 
+): Promise<Uint8Array> {
     if (!guafiConfig.packageId) throw new Error("Package ID not configured");
 
     // 3.1 获取或创建 Session Key (带缓存)
@@ -131,5 +129,5 @@ export async function decryptRumorContent(
         txBytes,
     });
 
-    return decryptedBytes; 
+    return decryptedBytes;
 }

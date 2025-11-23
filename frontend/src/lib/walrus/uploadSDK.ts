@@ -1,10 +1,12 @@
 import { WalrusFile } from "@mysten/walrus";
 import { walrusClient } from "./clientSDK";
-import { useSignAndExecuteTransaction } from "@mysten/dapp-kit";
-
-export async function createWalrusFile(content: string, address: string) {
-  const { mutateAsync: signAndExecuteTransaction } =
-    useSignAndExecuteTransaction();
+import type { Transaction } from "@mysten/sui/transactions";
+import type { SuiSignAndExecuteTransactionOutput } from "@mysten/wallet-standard";
+export async function createWalrusFile(
+  content: string,
+  address: string,
+  signAndExecuteTransaction: (args: { tx: Transaction }) => Promise<SuiSignAndExecuteTransactionOutput>
+) {
 
   const file = WalrusFile.from({
     contents: new TextEncoder().encode(content),
@@ -27,7 +29,7 @@ export async function createWalrusFile(content: string, address: string) {
     deletable: true,
   });
   const { digest } = await signAndExecuteTransaction({
-    transaction: registerTx,
+    tx: registerTx,
   });
   // Step 3: Upload the data to storage nodes
   // This can be done immediately after the register step, or as a separate step the user initiates
@@ -37,7 +39,7 @@ export async function createWalrusFile(content: string, address: string) {
 
   const certifyTx = flow.certify();
 
-  await signAndExecuteTransaction({ transaction: certifyTx });
+  await signAndExecuteTransaction({ tx: certifyTx });
 
   // Step 5: Get the new files
   const files = await flow.listFiles();

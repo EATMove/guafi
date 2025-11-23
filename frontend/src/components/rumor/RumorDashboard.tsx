@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StatusBadge } from '../StatusBadge';
 import { formatSui } from '../../lib/format';
 import type { RumorView } from '../../lib/types';
@@ -8,8 +9,9 @@ interface Props {
 }
 
 export const RumorDashboard: React.FC<Props> = ({ rumor }) => {
-    const progress = rumor.minParticipants === 0 
-        ? 0 
+    const { t } = useTranslation();
+    const progress = rumor.minParticipants === 0
+        ? 0
         : Math.min((rumor.participants / rumor.minParticipants) * 100, 100);
 
 
@@ -20,11 +22,11 @@ export const RumorDashboard: React.FC<Props> = ({ rumor }) => {
                 <div className="flex items-center gap-3">
                     <StatusBadge status={rumor.status} />
                     <span className="text-xs font-bold text-gray-500 font-mono bg-white px-2 py-1 border border-gray-300 rounded">
-                        ID: {rumor.id.slice(0, 6)}...{rumor.id.slice(-4)}
+                        {t('dashboard.id')}: {rumor.id.slice(0, 6)}...{rumor.id.slice(-4)}
                     </span>
                 </div>
                 <div className="text-sm font-bold text-gray-600">
-                    By <span className="text-pop-black">{rumor.creator.slice(0, 6)}...</span>
+                    {t('dashboard.by')} <span className="text-pop-black">{rumor.creator.slice(0, 6)}...</span>
                 </div>
             </div>
 
@@ -50,33 +52,32 @@ export const RumorDashboard: React.FC<Props> = ({ rumor }) => {
                 {/* Progress Column */}
                 <div className="space-y-2">
                     <div className="flex justify-between text-sm font-bold text-gray-500">
-                        <span>Unlock Progress</span>
+                        <span>{t('dashboard.unlock_progress')}</span>
                         <span className="text-pop-black">{rumor.participants} / {rumor.minParticipants}</span>
                     </div>
                     <div className="w-full bg-gray-100 border-2 border-pop-black rounded-full h-4 p-0.5">
                         <div
-                            className={`h-full rounded-full border border-pop-black transition-all duration-500 ${
-                                rumor.status === 'unlocked' ? 'bg-pop-green' : 'bg-pop-blue'
-                            }`}
+                            className={`h-full rounded-full border border-pop-black transition-all duration-500 ${rumor.status === 'unlocked' ? 'bg-pop-green' : 'bg-pop-blue'
+                                }`}
                             style={{ width: `${progress}%` }}
                         ></div>
                     </div>
                     <p className="text-xs font-bold text-gray-400">
-                        {rumor.status === 'unlocked' 
-                            ? '✨ Content Unlocked' 
-                            : `${Math.max(rumor.minParticipants - rumor.participants, 0)} more needed`}
+                        {rumor.status === 'unlocked'
+                            ? t('dashboard.content_unlocked')
+                            : `${Math.max(rumor.minParticipants - rumor.participants, 0)} ${t('dashboard.more_needed')}`}
                     </p>
                 </div>
 
                 {/* Entry Price Column */}
                 <div className="flex flex-col justify-center items-start md:items-center border-t-2 md:border-t-0 md:border-l-2 border-dashed border-gray-300 pt-4 md:pt-0 md:pl-6">
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Entry Price</p>
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">{t('dashboard.entry_price')}</p>
                     <p className="text-3xl font-black text-pop-black">{formatSui(rumor.price)} <span className="text-sm text-gray-400">SUI</span></p>
                 </div>
 
                 {/* Reward Pool Column */}
                 <div className="flex flex-col justify-center items-start md:items-center border-t-2 md:border-t-0 md:border-l-2 border-dashed border-gray-300 pt-4 md:pt-0 md:pl-6">
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total Reward Pool</p>
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">{t('dashboard.total_reward_pool')}</p>
                     <p className="text-3xl font-black text-pop-green">{formatSui(rumor.rewardPool)} <span className="text-sm text-gray-400">SUI</span></p>
                 </div>
             </div>

@@ -92,12 +92,110 @@
       opacity: 0.8;
     }
   }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes marquee-reverse {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
 }
 
 @layer base {
   body {
     @apply bg-gray-50 text-pop-black font-sans;
-    background-image: radial-gradient(#1A1A1A 1px, transparent 1px);
+    background-image: radial-gradient(#1b1b1b 1px, transparent 1px);
     background-size: 20px 20px;
+  }
+}
+
+@layer utilities {
+  .meme-rotate {
+    @apply hover:rotate-2 transition-transform duration-200;
+  }
+
+  .meme-shadow {
+    @apply shadow-hard hover:shadow-hard-lg hover:-translate-y-1 transition-all duration-200;
+  }
+
+  /* Manga Pop Utilities */
+  .bg-halftone {
+    background-image: radial-gradient(circle, #9c9c9c 2px, transparent 2.5px);
+    background-size: 24px 24px;
+    background-color: #f8f9fa;
+  }
+
+  .bg-speedlines {
+    background-image: repeating-conic-gradient(from 0deg at 50% 50%,
+        transparent 0deg 15deg,
+        rgba(0, 0, 0, 0.1) 15deg 30deg);
+  }
+
+  .border-comic {
+    @apply border-4 border-pop-black;
+  }
+
+  .shadow-comic {
+    box-shadow: 8px 8px 0px 0px #1b1b1b;
+  }
+
+  .shadow-comic-lg {
+    box-shadow: 12px 12px 0px 0px #1b1b1b;
+  }
+
+  .shadow-comic-hover {
+    @apply transition-all duration-200;
+  }
+
+  .shadow-comic-hover:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 12px 12px 0px 0px #1b1b1b;
+  }
+
+  .text-outline {
+    text-shadow:
+      2px 2px 0 #000,
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000;
+    color: white;
+  }
+
+  .animate-marquee {
+    animation: marquee linear infinite;
+  }
+
+  .animate-marquee-reverse {
+    animation: marquee-reverse linear infinite;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
   }
 }
