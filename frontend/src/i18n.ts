@@ -76,6 +76,7 @@ const resources = {
             "profile.pending": "Pending",
             "profile.claimed": "Claimed",
             "profile.participated_rumors": "Participated Rumors",
+            "profile.created_rumors": "Created Rumors",
             "profile.refresh": "Refresh",
             "profile.refreshing": "Refreshing...",
             "profile.no_tickets": "No tickets yet.",
@@ -83,6 +84,7 @@ const resources = {
             "profile.claimable_reward": "Claimable Reward",
             "profile.claim": "Claim",
             "profile.view": "View",
+            "share.to_x": "Share to X",
         }
     },
     zh: {
@@ -158,6 +160,7 @@ const resources = {
             "profile.pending": "待领取",
             "profile.claimed": "已领取",
             "profile.participated_rumors": "参与的瓜",
+            "profile.created_rumors": "发布的瓜",
             "profile.refresh": "刷新",
             "profile.refreshing": "刷新中...",
             "profile.no_tickets": "暂无门票。",
@@ -165,6 +168,7 @@ const resources = {
             "profile.claimable_reward": "可领取奖励",
             "profile.claim": "领取",
             "profile.view": "查看",
+            "share.to_x": "分享到 X",
         }
     }
 };

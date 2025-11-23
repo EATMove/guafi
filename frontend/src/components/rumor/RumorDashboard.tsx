@@ -25,8 +25,24 @@ export const RumorDashboard: React.FC<Props> = ({ rumor }) => {
                         {t('dashboard.id')}: {rumor.id.slice(0, 6)}...{rumor.id.slice(-4)}
                     </span>
                 </div>
-                <div className="text-sm font-bold text-gray-600">
-                    {t('dashboard.by')} <span className="text-pop-black">{rumor.creator.slice(0, 6)}...</span>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => {
+                            const shareText = `🍉 ${rumor.title}\n\nCheck out this rumor on GuaFi!`;
+                            const shareUrl = window.location.href;
+                            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+                            window.open(twitterUrl, '_blank', 'noopener,noreferrer');
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-colors border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
+                    >
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                        </svg>
+                        <span>{t('share.to_x')}</span>
+                    </button>
+                    <div className="text-sm font-bold text-gray-600">
+                        {t('dashboard.by')} <span className="text-pop-black">{rumor.creator.slice(0, 6)}...</span>
+                    </div>
                 </div>
             </div>
 

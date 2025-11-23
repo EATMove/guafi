@@ -10,6 +10,7 @@ import { guafiConfig } from '../lib/config';
 import { formatSui, shortAddress } from '../lib/format';
 import type { TicketView, RumorView } from '../lib/types';
 import { computeUserStats } from '../lib/stats';
+import { useRumors } from '../hooks/useRumors';
 
 const Profile: React.FC = () => {
     const { t } = useTranslation();
@@ -18,6 +19,13 @@ const Profile: React.FC = () => {
     const { mutateAsync, isPending } = useSignAndExecuteTransaction();
     const [error, setError] = useState<string | null>(null);
     const statsEnabled = Boolean(account?.address && guafiConfig.packageId);
+
+    // Fetch all rumors to find created ones
+    const { data: allRumors } = useRumors();
+    const createdRumors = useMemo(() => {
+        if (!account?.address || !allRumors) return [];
+        return allRumors.filter(rumor => rumor.creator === account.address);
+    }, [allRumors, account?.address]);
 
     const { data: tickets, isLoading, refetch, isFetching } = useQuery<Array<{ ticket: TicketView; rumor: RumorView }>>({
         queryKey: ['tickets', account?.address],
@@ -145,6 +153,52 @@ const Profile: React.FC = () => {
                     </div>
                 </div>
             </Card >
+
+            {/* Created Rumors Section */}
+            {createdRumors.length > 0 && (
+                <>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-2xl font-black text-pop-black pl-2 border-l-8 border-pop-pink">
+                            {t('profile.created_rumors')}
+                        </h2>
+                        <span className="text-sm font-bold text-gray-500">
+                            {createdRumors.length} {createdRumors.length === 1 ? 'Rumor' : 'Rumors'}
+                        </span>
+                    </div>
+                    <div className="space-y-4 mb-12">
+                        {createdRumors.map((rumor, index) => (
+                            <div key={rumor.id} className="animate-bounce-in" style={{ animationDelay: `${index * 100}ms` }}>
+                                <Card className="flex flex-col md:flex-row justify-between items-center p-6 shadow-comic-hover border-comic rounded-none bg-white">
+                                    <div className="mb-4 md:mb-0 flex-grow">
+                                        <div className="flex items-center space-x-3 mb-2">
+                                            <span className={`px-2 py-0.5 border-2 border-pop-black font-bold uppercase text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${rumor.status === 'unlocked' ? 'bg-pop-green text-white' :
+                                                    rumor.status === 'failed' ? 'bg-pop-pink text-white' :
+                                                        'bg-pop-yellow text-pop-black'
+                                                }`}>
+                                                {describeStatus(rumor.status)}
+                                            </span>
+                                            <span className="text-gray-500 font-mono font-bold truncate max-w-[120px]">{rumor.id}</span>
+                                        </div>
+                                        <h3 className="text-xl font-black text-pop-black break-words">{rumor.title}</h3>
+                                        <div className="flex items-center gap-4 mt-2 text-sm font-bold text-gray-600">
+                                            <span>💰 {formatSui(rumor.price)} SUI</span>
+                                            <span>👥 {rumor.participants}/{rumor.minParticipants}</span>
+                                            <span>🏆 {formatSui(rumor.rewardPool)} SUI Pool</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center space-x-4">
+                                        <Link to={`/rumor/${rumor.id}`}>
+                                            <Button variant="outline" size="sm">
+                                                {t('profile.view')}
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </Card>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
 
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-black text-pop-black pl-2 border-l-8 border-pop-yellow">{t('profile.participated_rumors')}</h2>
