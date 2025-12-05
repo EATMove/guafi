@@ -65,6 +65,7 @@ export function rewardAmount(rumor: RumorView, ticket: TicketView): bigint {
     return pending / REWARD_PRECISION;
 }
 
+
 export function buildCreateRumorTx(params: {
     title: string;
     blobId: string;
@@ -76,7 +77,8 @@ export function buildCreateRumorTx(params: {
     if (!guafiConfig.packageId) throw new Error('VITE_PACKAGE_ID missing');
     const tx = new Transaction();
     const priceMist = toMist(params.price);
-
+    //minParticipants至少为1
+    const minParticipants = params.minParticipants === 0 ? 1 : params.minParticipants;
     tx.moveCall({
         target: `${guafiConfig.packageId}::guafi::create_rumor`,
         arguments: [
@@ -84,7 +86,7 @@ export function buildCreateRumorTx(params: {
             tx.pure.string(params.blobId),
             tx.pure.string(params.description),
             tx.pure.u64(priceMist),
-            tx.pure.u64(params.minParticipants),
+            tx.pure.u64(minParticipants),
             tx.pure.u64(params.deadlineMs ?? 0),
             tx.object('0x6'), // Clock
         ],

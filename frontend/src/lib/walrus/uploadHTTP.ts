@@ -12,9 +12,9 @@ interface UploadResponse {
 /**
  * 通过 HTTP PUT 上传文件到 Walrus Publisher
  * @param file - 浏览器 File 对象或 Blob
- * @param epochs - 存储周期 (默认 2)
  */
-export async function uploadBlob(file: File | Blob, epochs: number = 2): Promise<string> {
+export async function uploadBlob(file: File | Blob): Promise<string> {
+    const epochs = import.meta.env.NEXT_PUBLIC_BLOB_EPOCHS;
     const url = `${import.meta.env.VITE_PUBLISHER}/v1/blobs?epochs=${epochs}`;
     
     const response = await fetch(url, {

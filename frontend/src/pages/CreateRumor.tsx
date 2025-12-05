@@ -23,7 +23,7 @@ const CreateRumor: React.FC = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState<number>(0.1);
-    const [minParticipants, setMinParticipants] = useState<number>(10);
+    const [minParticipants, setMinParticipants] = useState<number>(1);
     const [file, setFile] = useState<File | null>(null);
 
     // Status State
@@ -170,10 +170,11 @@ const CreateRumor: React.FC = () => {
                         <Input
                             label={t('create.min_participants_label')}
                             type="number"
-                            placeholder="10"
+                            placeholder="1"
                             required
                             value={minParticipants}
-                            onChange={(e) => setMinParticipants(Number(e.target.value))}
+                            min={1}
+                            onChange={(e) => setMinParticipants(Math.max(1, Number(e.target.value)))}
                         />
                     </div>
 
