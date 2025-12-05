@@ -14,7 +14,7 @@ interface UploadResponse {
  * @param file - 浏览器 File 对象或 Blob
  */
 export async function uploadBlob(file: File | Blob): Promise<string> {
-    const epochs = import.meta.env.NEXT_PUBLIC_BLOB_EPOCHS;
+    const epochs = import.meta.env.VITE_BLOB_EPOCHS;
     const url = `${import.meta.env.VITE_PUBLISHER}/v1/blobs?epochs=${epochs}`;
     
     const response = await fetch(url, {

@@ -44,6 +44,13 @@ const CreateRumor: React.FC = () => {
         }
     };
 
+    const handleRemoveFile = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setFile(null);
+        const input = document.getElementById('file-upload') as HTMLInputElement;
+        if (input) input.value = '';
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
@@ -133,17 +140,28 @@ const CreateRumor: React.FC = () => {
                     <div>
                         <label className="block font-bold mb-2 text-pop-black">{t('create.content')}</label>
                         <div className="border-2 border-dashed border-pop-black rounded-lg p-6 text-center hover:bg-pop-yellow/20 transition cursor-pointer group bg-white relative">
-                            <input
-                                type="file"
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                id="file-upload"
-                                onChange={handleFileChange}
-                                accept="application/pdf,.pdf"
-                            />
-                            <div className="pointer-events-none">
+                            {!file && (
+                                <input
+                                    type="file"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                    id="file-upload"
+                                    onChange={handleFileChange}
+                                    accept="application/pdf,.pdf"
+                                />
+                            )}
+                            <div className={file ? "relative z-20" : "pointer-events-none"}>
                                 {file ? (
-                                    <div className="text-pop-green font-bold text-lg break-all">
-                                        ✅ {file.name}
+                                    <div className="flex flex-col items-center gap-3">
+                                        <div className="text-pop-green font-bold text-lg break-all">
+                                            ✅ {file.name}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleRemoveFile}
+                                            className="px-4 py-1 bg-pop-pink text-white font-bold rounded-lg border-2 border-pop-black shadow-hard text-sm hover:translate-y-0.5 hover:shadow-none transition-all"
+                                        >
+                                            {t('common.cancel') || '取消'}
+                                        </button>
                                     </div>
                                 ) : (
                                     <>
